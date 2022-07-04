@@ -93,26 +93,27 @@ public class BarChartActivity extends DemoBase implements OnSeekBarChangeListene
         xAxis.setTypeface(tfLight);
         xAxis.setDrawGridLines(false);
         xAxis.setGranularity(1f); // only intervals of 1 day
-        xAxis.setLabelCount(7);
-        xAxis.setValueFormatter(xAxisFormatter);
+        xAxis.setLabelCount(30);
+        xAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+
+        //xAxis.getGranularity()
+       // xAxis.setValueFormatter(xAxisFormatter);
 
         IAxisValueFormatter custom = new MyAxisValueFormatter();
 
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setTypeface(tfLight);
-        leftAxis.setLabelCount(8, false);
-        leftAxis.setValueFormatter(custom);
+        leftAxis.setLabelCount(10, false);
+        //leftAxis.setValueFormatter(custom);
         leftAxis.setPosition(YAxisLabelPosition.OUTSIDE_CHART);
         leftAxis.setSpaceTop(15f);
         leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+        leftAxis.setAxisMaximum(100f);
 
         YAxis rightAxis = chart.getAxisRight();
+        rightAxis.setEnabled(false);
         rightAxis.setDrawGridLines(false);
-        rightAxis.setTypeface(tfLight);
-        rightAxis.setLabelCount(8, false);
-        rightAxis.setValueFormatter(custom);
-        rightAxis.setSpaceTop(15f);
-        rightAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+
 
         Legend l = chart.getLegend();
         l.setVerticalAlignment(Legend.LegendVerticalAlignment.BOTTOM);
@@ -141,7 +142,7 @@ public class BarChartActivity extends DemoBase implements OnSeekBarChangeListene
 
         ArrayList<BarEntry> values = new ArrayList<>();
 
-        for (int i = (int) start; i < start + count; i++) {
+       /* for (int i = (int) start; i < start + count; i++) {
             float val = (float) (Math.random() * (range + 1));
 
             if (Math.random() * 100 < 25) {
@@ -149,7 +150,25 @@ public class BarChartActivity extends DemoBase implements OnSeekBarChangeListene
             } else {
                 values.add(new BarEntry(i, val));
             }
-        }
+        }*/
+
+        float arr[] = new float[]{10f,10f};
+        values.add(new BarEntry(1,arr));
+        values.add(new BarEntry(1.5f,8f));
+        values.add(new BarEntry(1.8f,16f));
+
+        values.add(new BarEntry(3,16));
+        values.add(new BarEntry(4,0));
+        values.add(new BarEntry(5,0));
+        values.add(new BarEntry(6,0));
+        values.add(new BarEntry(7,0));
+
+
+
+
+
+
+
 
         BarDataSet set1;
 
@@ -161,7 +180,7 @@ public class BarChartActivity extends DemoBase implements OnSeekBarChangeListene
             chart.notifyDataSetChanged();
 
         } else {
-            set1 = new BarDataSet(values, "The year 2017");
+            set1 = new BarDataSet(values, "");
 
             set1.setDrawIcons(false);
 
@@ -191,7 +210,7 @@ public class BarChartActivity extends DemoBase implements OnSeekBarChangeListene
             BarData data = new BarData(dataSets);
             data.setValueTextSize(10f);
             data.setValueTypeface(tfLight);
-            data.setBarWidth(0.9f);
+            data.setBarWidth(0.2f);
 
             chart.setData(data);
         }

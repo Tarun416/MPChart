@@ -10,6 +10,7 @@ import android.graphics.drawable.Drawable;
 import com.github.mikephil.charting.animation.ChartAnimator;
 import com.github.mikephil.charting.buffer.BarBuffer;
 import com.github.mikephil.charting.data.BarData;
+import com.github.mikephil.charting.data.BarDataSet;
 import com.github.mikephil.charting.data.BarEntry;
 import com.github.mikephil.charting.highlight.Highlight;
 import com.github.mikephil.charting.highlight.Range;
@@ -37,6 +38,17 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
     protected Paint mShadowPaint;
     protected Paint mBarBorderPaint;
 
+    /**
+     * if set to true, the bar chart's bars would be round on all corners instead of rectangular
+     */
+    private boolean mDrawRoundedBars;
+
+    /**
+     * the radius of the rounded bar chart bars
+     */
+    private float mRoundedBarRadius = 0f;
+
+
     public BarChartRenderer(BarDataProvider chart, ChartAnimator animator,
                             ViewPortHandler viewPortHandler) {
         super(animator, viewPortHandler);
@@ -53,6 +65,13 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
 
         mBarBorderPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
         mBarBorderPaint.setStyle(Paint.Style.STROKE);
+    }
+
+    public BarChartRenderer(BarDataProvider chart, ChartAnimator animator,
+                            ViewPortHandler viewPortHandler, boolean mDrawRoundedBars, float mRoundedBarRadius) {
+        this(chart, animator, viewPortHandler);
+        this.mDrawRoundedBars = mDrawRoundedBars;
+        this.mRoundedBarRadius = mRoundedBarRadius;
     }
 
     @Override
@@ -108,8 +127,8 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
             float x;
 
             for (int i = 0, count = Math.min((int)(Math.ceil((float)(dataSet.getEntryCount()) * phaseX)), dataSet.getEntryCount());
-                i < count;
-                i++) {
+                 i < count;
+                 i++) {
 
                 BarEntry e = dataSet.getEntryForIndex(i);
 
@@ -129,7 +148,14 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
                 mBarShadowRectBuffer.top = mViewPortHandler.contentTop();
                 mBarShadowRectBuffer.bottom = mViewPortHandler.contentBottom();
 
-                c.drawRect(mBarShadowRectBuffer, mShadowPaint);
+               // c.drawRect(mBarShadowRectBuffer, mShadowPaint);
+
+                if (mDrawRoundedBars) {
+                    c.drawRoundRect(new RectF(mBarShadowRectBuffer), mRoundedBarRadius, mRoundedBarRadius, mShadowPaint);
+                } else {
+                    c.drawRect(mBarShadowRectBuffer, mShadowPaint);
+                }
+
             }
         }
 
@@ -166,7 +192,7 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
                 mRenderPaint.setColor(dataSet.getColor(pos));
             }
 
-            if (isCustomFill) {
+            if (!isCustomFill && false) {
                 dataSet.getFill(pos)
                         .fillRect(
                                 c, mRenderPaint,
@@ -177,13 +203,24 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
                                 isInverted ? Fill.Direction.DOWN : Fill.Direction.UP);
             }
             else {
+                if(mDrawRoundedBars)
+                {
+                    c.drawRoundRect(new RectF(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+                            buffer.buffer[j + 3]), mRoundedBarRadius, mRoundedBarRadius, mRenderPaint);
+                }
+                else
                 c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
                         buffer.buffer[j + 3], mRenderPaint);
             }
 
             if (drawBorder) {
-                c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
-                        buffer.buffer[j + 3], mBarBorderPaint);
+                if (mDrawRoundedBars) {
+                    c.drawRoundRect(new RectF(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+                            buffer.buffer[j + 3]), mRoundedBarRadius, mRoundedBarRadius, mBarBorderPaint);
+                } else {
+                    c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+                            buffer.buffer[j + 3], mBarBorderPaint);
+                }
             }
         }
     }
@@ -480,7 +517,13 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
 
             setHighlightDrawPos(high, mBarRect);
 
-            c.drawRect(mBarRect, mHighlightPaint);
+           // c.drawRect(mBarRect, mHighlightPaint);
+
+            if (mDrawRoundedBars) {
+                c.drawRoundRect(new RectF(mBarRect), mRoundedBarRadius, mRoundedBarRadius, mHighlightPaint);
+            } else {
+                c.drawRect(mBarRect, mHighlightPaint);
+            }
         }
     }
 
@@ -496,3 +539,106 @@ public class BarChartRenderer extends BarLineScatterCandleBubbleRenderer {
     public void drawExtras(Canvas c) {
     }
 }
+
+/*
+
+    Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
+
+        mBarBorderPaint.setColor(dataSet.getBarBorderColor());
+                mBarBorderPaint.setStrokeWidth(Utils.convertDpToPixel(dataSet.getBarBorderWidth()));
+
+final boolean drawBorder = dataSet.getBarBorderWidth() > 0.f;
+
+        float phaseX = mAnimator.getPhaseX();
+        float phaseY = mAnimator.getPhaseY();
+
+        // draw the bar shadow before the values
+        if (mChart.isDrawBarShadowEnabled()) {
+        mShadowPaint.setColor(dataSet.getBarShadowColor());
+
+        BarData barData = mChart.getBarData();
+
+final float barWidth = barData.getBarWidth();
+final float barWidthHalf = barWidth / 2.0f;
+        float x;
+
+        for (int i = 0, count = Math.min((int)(Math.ceil((float)(dataSet.getEntryCount()) * phaseX)), dataSet.getEntryCount());
+        i < count;
+                i++) {
+
+                        BarEntry e = dataSet.getEntryForIndex(i);
+
+                        x = e.getX();
+
+                        mBarShadowRectBuffer.left = x - barWidthHalf;
+                        mBarShadowRectBuffer.right = x + barWidthHalf;
+
+                        trans.rectValueToPixel(mBarShadowRectBuffer);
+
+                        if (!mViewPortHandler.isInBoundsLeft(mBarShadowRectBuffer.right))
+                        continue;
+
+                        if (!mViewPortHandler.isInBoundsRight(mBarShadowRectBuffer.left))
+                        break;
+
+                        mBarShadowRectBuffer.top = mViewPortHandler.contentTop();
+                        mBarShadowRectBuffer.bottom = mViewPortHandler.contentBottom();
+
+                        c.drawRect(mBarShadowRectBuffer, mShadowPaint);
+                        }
+                        }
+
+                        // initialize the buffer
+                        BarBuffer buffer = mBarBuffers[index];
+                        buffer.setPhases(phaseX, phaseY);
+                        buffer.setDataSet(index);
+                        buffer.setInverted(mChart.isInverted(dataSet.getAxisDependency()));
+                        buffer.setBarWidth(mChart.getBarData().getBarWidth());
+
+                        buffer.feed(dataSet);
+
+                        trans.pointValuesToPixel(buffer.buffer);
+
+final boolean isCustomFill = dataSet.getFills() != null && !dataSet.getFills().isEmpty();
+final boolean isSingleColor = dataSet.getColors().size() == 1;
+final boolean isInverted = mChart.isInverted(dataSet.getAxisDependency());
+
+        if (isSingleColor) {
+        mRenderPaint.setColor(dataSet.getColor());
+        }
+
+        for (int j = 0, pos = 0; j < buffer.size(); j += 4, pos++) {
+
+        if (!mViewPortHandler.isInBoundsLeft(buffer.buffer[j + 2]))
+        continue;
+
+        if (!mViewPortHandler.isInBoundsRight(buffer.buffer[j]))
+        break;
+
+        if (!isSingleColor) {
+        // Set the color for the currently drawn value. If the index
+        // is out of bounds, reuse colors.
+        mRenderPaint.setColor(dataSet.getColor(pos));
+        }
+
+        if (isCustomFill) {
+        dataSet.getFill(pos)
+        .fillRect(
+        c, mRenderPaint,
+        buffer.buffer[j],
+        buffer.buffer[j + 1],
+        buffer.buffer[j + 2],
+        buffer.buffer[j + 3],
+        isInverted ? Fill.Direction.DOWN : Fill.Direction.UP);
+        }
+        else {
+        c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+        buffer.buffer[j + 3], mRenderPaint);
+        }
+
+        if (drawBorder) {
+        c.drawRect(buffer.buffer[j], buffer.buffer[j + 1], buffer.buffer[j + 2],
+        buffer.buffer[j + 3], mBarBorderPaint);
+        }
+        }
+*/

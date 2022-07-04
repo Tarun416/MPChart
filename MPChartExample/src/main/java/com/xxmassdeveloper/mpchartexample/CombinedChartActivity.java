@@ -3,11 +3,15 @@ package com.xxmassdeveloper.mpchartexample;
 
 import android.content.Intent;
 import android.graphics.Color;
+import android.graphics.Paint;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
+
+import androidx.core.content.ContextCompat;
 
 import com.github.mikephil.charting.charts.CombinedChart;
 import com.github.mikephil.charting.charts.CombinedChart.DrawOrder;
@@ -32,11 +36,14 @@ import com.github.mikephil.charting.data.LineDataSet;
 import com.github.mikephil.charting.data.ScatterData;
 import com.github.mikephil.charting.data.ScatterDataSet;
 import com.github.mikephil.charting.formatter.IAxisValueFormatter;
+import com.github.mikephil.charting.formatter.IndexAxisValueFormatter;
 import com.github.mikephil.charting.interfaces.datasets.IDataSet;
 import com.github.mikephil.charting.utils.ColorTemplate;
 import com.xxmassdeveloper.mpchartexample.notimportant.DemoBase;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 public class CombinedChartActivity extends DemoBase {
 
@@ -63,6 +70,9 @@ public class CombinedChartActivity extends DemoBase {
         chart.setDrawOrder(new DrawOrder[]{
                 DrawOrder.BAR, DrawOrder.BUBBLE, DrawOrder.CANDLE, DrawOrder.LINE, DrawOrder.SCATTER
         });
+        chart.setVisibleXRangeMaximum(10);
+        chart.setScaleMinima(4f,1f);
+
 
         Legend l = chart.getLegend();
         l.setWordWrapEnabled(true);
@@ -72,37 +82,65 @@ public class CombinedChartActivity extends DemoBase {
         l.setDrawInside(false);
 
         YAxis rightAxis = chart.getAxisRight();
-        rightAxis.setDrawGridLines(false);
-        rightAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+        rightAxis.setEnabled(false);
+        /*rightAxis.setDrawGridLines(false);
+        rightAxis.setAxisMinimum(0f); */// this replaces setStartAtZero(true)
 
         YAxis leftAxis = chart.getAxisLeft();
         leftAxis.setDrawGridLines(false);
         leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+        leftAxis.setLabelCount(10);
+        leftAxis.setAxisMinimum(0f); // this replaces setStartAtZero(true)
+        leftAxis.setAxisMaximum(100f);
+        leftAxis.setTextColor(ContextCompat.getColor(this,android.R.color.holo_red_dark));
 
         XAxis xAxis = chart.getXAxis();
-        xAxis.setPosition(XAxisPosition.BOTH_SIDED);
+        xAxis.setPosition(XAxisPosition.BOTTOM);
         xAxis.setAxisMinimum(0f);
         xAxis.setGranularity(1f);
-        xAxis.setValueFormatter(new IAxisValueFormatter() {
+        xAxis.setDrawGridLines(false);
+        xAxis.setAxisMaximum(30f);
+        xAxis.setLabelCount(7);
+       /* xAxis.setValueFormatter(new IAxisValueFormatter() {
             @Override
             public String getFormattedValue(float value, AxisBase axis) {
                 return months[(int) value % months.length];
             }
-        });
+        });*/
+        xAxis.setValueFormatter(new IndexAxisValueFormatter(getDate()));
 
         CombinedData data = new CombinedData();
 
-        data.setData(generateLineData());
+      /*  data.setData(generateLineData());
         data.setData(generateBarData());
         data.setData(generateBubbleData());
-        data.setData(generateScatterData());
+        data.setData(generateScatterData());*/
         data.setData(generateCandleData());
         data.setValueTypeface(tfLight);
 
-        xAxis.setAxisMaximum(data.getXMax() + 0.25f);
+       // xAxis.setAxisMaximum(data.getXMax() + 0.25f);
+
 
         chart.setData(data);
         chart.invalidate();
+    }
+
+    private String[] getDate() {
+
+        String[] arr = new String[31];
+        arr[0] = "";
+        Calendar cal = Calendar.getInstance();
+        for(int i=1;i<=30;i++)
+        {
+            cal.add(Calendar.DATE,(30-i)*-1);
+            arr[i] = new SimpleDateFormat("dd").format(cal.getTime());
+            //Log.d("time",cal.getTime().toString());
+            cal = Calendar.getInstance();
+        }
+
+       // return new String[]{"","28"};
+        return arr;
+
     }
 
     private LineData generateLineData() {
@@ -195,16 +233,32 @@ public class CombinedChartActivity extends DemoBase {
 
         ArrayList<CandleEntry> entries = new ArrayList<>();
 
-        for (int index = 0; index < count; index += 2)
-            entries.add(new CandleEntry(index + 1f, 90, 70, 85, 75f));
+        entries.add(new CandleEntry(1, 85, 30, 85, 30f));
+        entries.add(new CandleEntry(2F, 90, 30, 90, 30f));
+        entries.add(new CandleEntry(3F, 100, 30, 100, 30f));
 
-        CandleDataSet set = new CandleDataSet(entries, "Candle DataSet");
-        set.setDecreasingColor(Color.rgb(142, 150, 175));
-        set.setShadowColor(Color.DKGRAY);
-        set.setBarSpace(0.3f);
+        CandleDataSet set = new CandleDataSet(entries, "");
+        set.setShowCandleBar(true);
+
+       // set.setIncreasingColor(ColorTemplate.COLOR_NONE);
+      //  set.setIncreasingPaintStyle(Paint.Style.FILL);
+        set.setDecreasingColor(ColorTemplate.COLOR_NONE);
+        set.setColors(new int[]{ContextCompat.getColor(this, android.R.color.holo_red_dark),ContextCompat.getColor(this, android.R.color.holo_blue_bright),ContextCompat.getColor(this, android.R.color.holo_green_dark)});
+       // set.setColor(R.color.red);
+        //set.setShadowWidth(7f);
+       // set.setColors(new int[]{R.color.white,R.color.red});
+        /*set.setIncreasingColor(Color.rgb(200, 0, 0));
+        set.setIncreasingPaintStyle(Paint.Style.FILL);
+        set.setDecreasingColor(Color.rgb(200, 0, 0));
+        set.setDecreasingPaintStyle(Paint.Style.FILL);*/
+      //  set.setColors(new int[]{R.color.white,R.color.white,R.color.white},this);
+       // set.setShadowColor(Color.DKGRAY);
+        set.setBarSpace(0.4f);
         set.setValueTextSize(10f);
         set.setDrawValues(false);
+      //  set.setColor(ContextCompat.getColor(this,android.R.color.black));
         d.addDataSet(set);
+
 
         return d;
     }

@@ -7,6 +7,8 @@ import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
 import androidx.core.content.ContextCompat;
+
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.WindowManager;
@@ -93,6 +95,7 @@ public class AnotherBarActivity extends DemoBase implements OnSeekBarChangeListe
             float multi = (seekBarY.getProgress() + 1);
             float val = (float) (Math.random() * multi) + multi / 3;
             values.add(new BarEntry(i, val));
+            Log.d("x&y", i+" "+val );
         }
 
         BarDataSet set1;

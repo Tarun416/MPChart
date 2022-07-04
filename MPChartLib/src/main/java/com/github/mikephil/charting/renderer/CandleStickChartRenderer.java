@@ -2,7 +2,11 @@
 package com.github.mikephil.charting.renderer;
 
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.LinearGradient;
 import android.graphics.Paint;
+import android.graphics.RectF;
+import android.graphics.Shader;
 import android.graphics.drawable.Drawable;
 
 import com.github.mikephil.charting.animation.ChartAnimator;
@@ -30,6 +34,8 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
     private float[] mOpenBuffers = new float[4];
     private float[] mCloseBuffers = new float[4];
 
+
+
     public CandleStickChartRenderer(CandleDataProvider chart, ChartAnimator animator,
                                     ViewPortHandler viewPortHandler) {
         super(animator, viewPortHandler);
@@ -55,6 +61,12 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
 
     @SuppressWarnings("ResourceAsColor")
     protected void drawDataSet(Canvas c, ICandleDataSet dataSet) {
+
+        // Gradient Shade colors
+         int[]colors = new int[]{
+                dataSet.getColor(0),
+                        dataSet.getColor(1),
+                        };
 
         Transformer trans = mChart.getTransformer(dataSet.getAxisDependency());
 
@@ -117,28 +129,28 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
                         mRenderPaint.setColor(
                                 dataSet.getDecreasingColor() == ColorTemplate.COLOR_NONE ?
                                         dataSet.getColor(j) :
-                                        dataSet.getDecreasingColor()
+                                        dataSet.getColor(j)
                         );
 
                     else if (open < close)
                         mRenderPaint.setColor(
                                 dataSet.getIncreasingColor() == ColorTemplate.COLOR_NONE ?
                                         dataSet.getColor(j) :
-                                        dataSet.getIncreasingColor()
+                                        dataSet.getColor(j)
                         );
 
                     else
                         mRenderPaint.setColor(
                                 dataSet.getNeutralColor() == ColorTemplate.COLOR_NONE ?
                                         dataSet.getColor(j) :
-                                        dataSet.getNeutralColor()
+                                        dataSet.getColor(j)
                         );
 
                 } else {
                     mRenderPaint.setColor(
                             dataSet.getShadowColor() == ColorTemplate.COLOR_NONE ?
                                     dataSet.getColor(j) :
-                                    dataSet.getShadowColor()
+                                    dataSet.getColor(j)
                     );
                 }
 
@@ -161,14 +173,20 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
                     if (dataSet.getDecreasingColor() == ColorTemplate.COLOR_NONE) {
                         mRenderPaint.setColor(dataSet.getColor(j));
                     } else {
-                        mRenderPaint.setColor(dataSet.getDecreasingColor());
+                        mRenderPaint.setColor(dataSet.getColor(j) );
                     }
 
                     mRenderPaint.setStyle(dataSet.getDecreasingPaintStyle());
 
-                    c.drawRect(
+                   /* c.drawRect(
                             mBodyBuffers[0], mBodyBuffers[3],
                             mBodyBuffers[2], mBodyBuffers[1],
+                            mRenderPaint);*/
+                    mRenderPaint.setShader(new LinearGradient(mBodyBuffers[0], mBodyBuffers[3],  mBodyBuffers[2], mBodyBuffers[1], colors, null, Shader.TileMode.MIRROR));
+
+                    c.drawRoundRect(
+                            new RectF(mBodyBuffers[0], mBodyBuffers[3],
+                            mBodyBuffers[2], mBodyBuffers[1]),60f,60f,
                             mRenderPaint);
 
                 } else if (open < close) {
@@ -176,21 +194,28 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
                     if (dataSet.getIncreasingColor() == ColorTemplate.COLOR_NONE) {
                         mRenderPaint.setColor(dataSet.getColor(j));
                     } else {
-                        mRenderPaint.setColor(dataSet.getIncreasingColor());
+                        mRenderPaint.setColor(dataSet.getColor(j) );
                     }
 
                     mRenderPaint.setStyle(dataSet.getIncreasingPaintStyle());
 
-                    c.drawRect(
+                   /* c.drawRect(
                             mBodyBuffers[0], mBodyBuffers[1],
                             mBodyBuffers[2], mBodyBuffers[3],
+                            mRenderPaint);*/
+
+                    mRenderPaint.setShader(new LinearGradient(mBodyBuffers[0], mBodyBuffers[3],  mBodyBuffers[2], mBodyBuffers[1], Color.BLACK, Color.RED, Shader.TileMode.MIRROR));
+                    c.drawRoundRect(
+                            new RectF(mBodyBuffers[0], mBodyBuffers[1],
+                                    mBodyBuffers[2], mBodyBuffers[3]),60f,60f,
                             mRenderPaint);
+
                 } else { // equal values
 
                     if (dataSet.getNeutralColor() == ColorTemplate.COLOR_NONE) {
                         mRenderPaint.setColor(dataSet.getColor(j));
                     } else {
-                        mRenderPaint.setColor(dataSet.getNeutralColor());
+                        mRenderPaint.setColor(dataSet.getColor(j) );
                     }
 
                     c.drawLine(
@@ -225,15 +250,15 @@ public class CandleStickChartRenderer extends LineScatterCandleRadarRenderer {
                 if (open > close)
                     barColor = dataSet.getDecreasingColor() == ColorTemplate.COLOR_NONE
                             ? dataSet.getColor(j)
-                            : dataSet.getDecreasingColor();
+                            : dataSet.getColor(j) ;
                 else if (open < close)
                     barColor = dataSet.getIncreasingColor() == ColorTemplate.COLOR_NONE
                             ? dataSet.getColor(j)
-                            : dataSet.getIncreasingColor();
+                            : dataSet.getColor(j) ;
                 else
                     barColor = dataSet.getNeutralColor() == ColorTemplate.COLOR_NONE
                             ? dataSet.getColor(j)
-                            : dataSet.getNeutralColor();
+                            : dataSet.getColor(j) ;
 
                 mRenderPaint.setColor(barColor);
                 c.drawLine(
